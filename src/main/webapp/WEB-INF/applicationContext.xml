@@ -1,0 +1,657 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	 <bean id="propertyConfigurer" class="com.netcore.pnserver.init.PNServerPropertyPlaceholderConfigurer">
+        <property name="files">
+            <list>
+                <value>-Dcom.netcore.pnserver.propsfile</value>                
+            </list>
+        </property>
+    </bean>
+
+	<!-- *********** -->
+	<!-- Redis -->
+	<!-- *********** -->
+
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="2" />
+		<property name="maxTotal" value="40" />
+		<property name="minIdle" value="2" />
+	</bean>
+
+	<bean id="jedispool" class="redis.clients.jedis.JedisPool">
+		<constructor-arg name="poolConfig" ref="poolConfig" />
+		<constructor-arg name="host" value="${REDIS_HOST}" />
+		<constructor-arg name="port" value="6379" />
+	</bean>
+
+	<bean id="TpoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="2" />
+		<property name="maxTotal" value="40" />
+		<property name="minIdle" value="2" />
+	</bean>
+
+	<bean id="Tjedispool" class="redis.clients.jedis.JedisPool">
+		<constructor-arg name="poolConfig" ref="TpoolConfig" />
+		<constructor-arg name="host" value="${TREDIS_HOST}" />
+		<constructor-arg name="port" value="6379" />
+	</bean>
+
+	<bean id="summarizerPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="2" />
+		<property name="maxTotal" value="40" />
+		<property name="minIdle" value="2" />
+	</bean>
+	
+	<bean id="papoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="2" />
+		<property name="maxTotal" value="40" />
+		<property name="minIdle" value="2" />
+	</bean>
+	
+	<bean id="summarizerJedisPool" class="redis.clients.jedis.JedisPool">
+		<constructor-arg name="poolConfig" ref="summarizerPoolConfig" />
+		<constructor-arg name="host" value="${SUMMARIZER_REDIS_HOST}" />
+		<constructor-arg name="port" value="6379" />
+	</bean>
+
+	<bean id="pajedispool" class="redis.clients.jedis.JedisPool">
+		<constructor-arg name="poolConfig" ref="papoolConfig" />
+		<constructor-arg name="host" value="${PA_REDIS_HOST}" />
+		<constructor-arg name="port" value="6379" />
+	</bean>
+
+	<!-- *********** -->
+	<!-- Mongo -->
+	<!-- *********** -->
+	
+	<bean id="mongoURI" class="com.mongodb.MongoClientURI">
+		<constructor-arg name="uri" value="${MONGO_URI}" />
+	</bean>
+	
+	<bean id="mongoCLIENT" class="com.mongodb.MongoClient">
+		<constructor-arg ref="mongoURI" />
+	</bean>
+    <!-- *********** -->
+	<!--  Mongo Cluster 2  -->
+	<!-- *********** -->
+	
+		<bean id="mongoURICluster2" class="com.mongodb.MongoClientURI">
+			<constructor-arg name="uri" value="${MONGO_URI_CLUSTER2}" />
+		</bean>
+	
+		<bean id="mongoClientCluster2" class="com.mongodb.MongoClient">
+			<constructor-arg ref="mongoURICluster2" />
+		</bean>
+	
+	<!-- *********** -->
+	<!-- Mongo Encrypted -->
+	<!-- *********** -->
+	<bean id="mongoURIEnterprise" class="com.mongodb.MongoClientURI">
+		<constructor-arg name="uri" value="${MONGO_URI_ENTERPRISE}" />
+	</bean>
+	
+	<bean id="mongoCLIENTEnterprise" class="com.mongodb.MongoClient">
+		<constructor-arg ref="mongoURIEnterprise" />
+	</bean>
+
+	<bean id="mongoDao" class="com.netcore.pnserver.dao.MongoDaoImpl">
+		<constructor-arg ref="mongoCLIENT" />
+		<constructor-arg ref="mongoClientCluster2" />
+		<constructor-arg ref="clientdbmap" />
+		<constructor-arg ref="util" />
+		<constructor-arg ref="mongoCLIENTEnterprise" />
+	</bean>
+
+
+	<!-- *********** -->
+	<!-- Mysql -->
+	<!-- *********** -->
+
+	<bean name="dataSource_pdb1" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_PDB1}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+
+	<bean name="dataSource_prdev" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_PRDEV}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+
+	<bean name="dataSource_dbprdev" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url"
+			value="jdbc:mysql://${MYSQL_HOST_DBPRDEV}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+
+	<bean name="dataSource_db1" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_db1}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+
+	<bean name="dataSource_db2" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_db2}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+	<bean name="dataSource_db4" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_db4}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+	<bean name="dataSource_db5" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_db5}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+	<bean name="dataSource_db6" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_db6}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+	<bean name="dataSource_db7" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_db7}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+	<bean name="dataSource_db8" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_db8}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+
+	<bean name="dataSource_pdb4" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_PDB4}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+	<bean name="dataSource_pdb5" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_PDB5}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+
+	<bean name="dataSource_pdb6" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_PDB6}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+
+	<bean name="dataSource_pdb7" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_PDB7}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+
+	<bean name="dataSource_sitdb" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_SITDB}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+
+	<bean name="dataSource_pdbin1" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_PDBIN1}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+		<property name="maxTotal" value="30" />
+	</bean>
+
+	<bean name="dataSource_pdb8" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${MYSQL_HOST_PDB8}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="20" />
+		<property name="maxTotal" value="60" />
+	</bean>
+   <bean name="dataSource_pdb9" class="org.apache.commons.dbcp2.BasicDataSource">
+	    <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+	    <property name="url" value="jdbc:mysql://${MYSQL_HOST_PDB9}:3306/mysql" />
+	    <property name="username" value="root" />
+	    <property name="password" value="" />
+	    <property name="initialSize" value="20" />
+	    <property name="maxTotal" value="60" />
+	</bean>
+	<bean name="dataSource_pdb10" class="org.apache.commons.dbcp2.BasicDataSource">
+	    <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+	    <property name="url" value="jdbc:mysql://${MYSQL_HOST_PDB10}:3306/mysql" />
+	    <property name="username" value="root" />
+	    <property name="password" value="" />
+	    <property name="initialSize" value="20" />
+	    <property name="maxTotal" value="60" />
+	</bean>
+	<bean name="dataSource_tpdbin1" class="org.apache.commons.dbcp2.BasicDataSource">
+	    <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+	    <property name="url" value="jdbc:mysql://${MYSQL_HOST_TPDBIN1}:3306/mysql" />
+	    <property name="username" value="root" />
+	    <property name="password" value="" />
+	    <property name="initialSize" value="20" />
+	    <property name="maxTotal" value="60" />
+	</bean>
+
+	<bean id="pdb1" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_pdb1" />
+	</bean>
+	<bean id="prdev" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_prdev" />
+	</bean>
+	<bean id="dbprdev" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_dbprdev" />
+	</bean>
+	<bean id="db1" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_db1" />
+	</bean>
+	<bean id="db2" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_db2" />
+	</bean>
+	<bean id="db4" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_db4" />
+	</bean>
+	<bean id="db5" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_db5" />
+	</bean>
+	<bean id="db6" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_db6" />
+	</bean>
+	<bean id="db7" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_db7" />
+	</bean>
+	<bean id="db8" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_db8" />
+	</bean>
+	<bean id="pdb4" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_pdb4" />
+	</bean>
+	<bean id="pdb5" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_pdb5" />
+	</bean>
+
+	<bean id="pdb6" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_pdb6" />
+	</bean>
+
+	<bean id="pdb7" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_pdb7" />
+	</bean>
+
+	<bean id="sitdb" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_sitdb" />
+	</bean>
+
+	<bean id="pdbin1" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_pdbin1" />
+	</bean>
+
+	<bean id="pdb8" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_pdb8" />
+	</bean>
+    <bean id="pdb9" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource_pdb9"/>
+    </bean>
+    <bean id="pdb10" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource_pdb10"/>
+    </bean>
+    <bean id="tpdbin1" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource_tpdbin1"/>
+    </bean>
+	<bean name="papidataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${PAPI_MYSQL_HOST}:3306/mysql" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+		<property name="initialSize" value="2" />
+		<property name="maxTotal" value="10" />
+	</bean>
+
+	<bean id="papijdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="papidataSource" />
+	</bean>
+
+	<bean id="util" class="com.netcore.pnserver.util.Util">
+        <constructor-arg index="0" ref="redisDao" />
+
+	</bean>
+
+
+	<bean id="mysqlDao" class="com.netcore.pnserver.dao.MySqlDaoImpl">
+		<constructor-arg ref="papijdbcTemplate" />
+		<constructor-arg ref="clientdbmap" />
+		<constructor-arg ref="util" />
+	</bean>
+
+
+	<!-- ********** -->
+	<!-- APP Beans -->
+	<!-- ********** -->
+	<util:map id="clientmap" map-class="java.util.HashMap"
+		key-type="java.lang.Integer" value-type="java.lang.String">
+		<entry key="1" value="emm16_ak_mongo_segment" />
+	</util:map>
+
+	<util:map id="clientmapEncrypt" map-class="java.util.HashMap"
+		key-type="java.lang.Integer" value-type="java.lang.String">
+		<entry key="1" value="emm16_ak_mongo_segment" />
+	</util:map>
+
+	<bean id="clientdbmap" class="com.netcore.pnserver.util.ClientDBMap">
+		<constructor-arg index="0" ref="clientmap" />
+		<constructor-arg index="1" ref="jedispool" />
+		<constructor-arg index="2" ref="clientmapEncrypt" />
+	</bean>
+
+	<!-- **************** -->
+	<!-- Processor beans -->
+	<!-- **************** -->
+
+	<bean id="dequeueManager" class="com.netcore.pnserver.dequeuer.DequeueManager"
+		destroy-method="stopAll">
+		<constructor-arg index="0" ref="dqConf" />
+		<constructor-arg index="1" ref="redisDao" />
+	</bean>
+
+	<util:list id="dqConf" value-type="java.lang.String">
+		<value>PR1_PN_MULTICAST</value>
+		<value>PR1_PN_ICICI_MULTICAST</value>
+		<value>PR1_PN_MULTICAST_WEB</value>
+		<value>PR1_PN_MULTICAST_SAFARI</value>
+		<value>PR1_PN_BROADCAST</value>
+	    <value>PR1_PN_ICICI_BROADCAST</value>
+		<value>PR1_PN_BROADCAST_WEB</value>
+		<value>PR1_PN_BROADCAST_SAFARI</value>
+		<value>PR1_PN_MULTICAST_SILENT</value>
+		<value>PR1_PN_MULTICAST_SILENT_WEB</value>			
+		<value>PR1_PN_TR</value>
+		<value>PR1_PN_TR_WEB</value>	
+	</util:list>
+
+	<bean id="taskManager" class="com.netcore.pnserver.processor.TaskManager" />
+
+	<!-- Configuration of Generic Dequeuers -->
+	
+	<bean id="gd_PR1_PN_MULTICAST" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_MULTICAST" />
+		<constructor-arg index="2" ref="taskManager" />
+	</bean>
+	
+	<bean id="gd_PR1_PN_ICICI_MULTICAST" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_ICICI_MULTICAST" />
+		<constructor-arg index="2" ref="taskManager" />
+	</bean>
+
+	<bean id="gd_PR1_PN_MULTICAST_WEB" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_MULTICAST_WEB" />
+		<constructor-arg index="2" ref="taskManager" />
+	</bean>
+	
+		
+	<bean id="gd_PR1_PN_MULTICAST_SAFARI" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_MULTICAST_SAFARI" />
+		<constructor-arg index="2" ref="taskManager" />
+	</bean>
+	
+	
+	<bean id="gd_PR1_PN_BROADCAST" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_BROADCAST" />
+		<constructor-arg index="2" ref="taskManager" />
+	</bean>
+	
+	<bean id="gd_PR1_PN_ICICI_BROADCAST" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_ICICI_BROADCAST" />
+		<constructor-arg index="2" ref="taskManager" />
+	</bean>
+	
+	<bean id="gd_PR1_PN_BROADCAST_WEB" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_BROADCAST_WEB" />
+		<constructor-arg index="2" ref="taskManager" />
+
+
+	</bean>
+	
+	<bean id="gd_PR1_PN_BROADCAST_SAFARI" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_BROADCAST_SAFARI" />
+		<constructor-arg index="2" ref="taskManager" />
+	</bean>
+	
+	<bean id="gd_PR1_PN_MULTICAST_SILENT" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_MULTICAST_SILENT" />
+		<constructor-arg index="2" ref="taskManager" />
+	</bean>
+	
+	<bean id="gd_PR1_PN_MULTICAST_SILENT_WEB" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_MULTICAST_SILENT_WEB" />
+		<constructor-arg index="2" ref="taskManager" />
+	</bean>
+			
+	<bean id="gd_PR1_PN_TR" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_TR" />
+		<constructor-arg index="2" ref="taskManager" />
+	</bean>	
+
+	<bean id="gd_PR1_PN_TR_WEB" class="com.netcore.pnserver.dequeuer.GenericDequeuer"
+		scope="prototype">
+		<constructor-arg index="0" ref="redisDao" />
+		<constructor-arg index="1" value="PR1_PN_TR_WEB" />
+		<constructor-arg index="2" ref="taskManager" />
+	</bean>
+
+	
+
+	<bean id="redisDao" class="com.netcore.pnserver.dao.RedisDao">
+		<constructor-arg index="0" ref="jedispool" />
+		<constructor-arg index="1" ref="Tjedispool" />
+		<constructor-arg index="2" ref="summarizerJedisPool" />
+		<constructor-arg index="3" ref="pajedispool" />
+	</bean>
+
+	<!-- **************** -->
+	<!-- Gateway beans -->
+	<!-- 01= Android GCM -->
+	<!-- 10= ios APNS -->
+	<!-- **************** -->
+
+	<bean id="01" class="com.netcore.pnserver.gateway.GCMConnector">
+		<constructor-arg name="mysqlDao" ref="mysqlDao" />
+		<constructor-arg name="mongoDao" ref="mongoDao" />
+		<constructor-arg name="redisDao" ref="redisDao" />
+	</bean>
+
+	<bean id="10" class="com.netcore.pnserver.gateway.APNSConnector"
+		destroy-method="shutdown">
+		<constructor-arg name="mysqlDao" ref="mysqlDao" />
+		<constructor-arg name="util" ref="util" />
+	</bean>
+
+
+	<!-- **************** -->
+	<!-- Dequeue Threads -->
+	<!-- **************** -->
+
+	<bean id="PR1_PN_MULTICAST" class="com.netcore.pnserver.processor.PR1_PN_MULTICAST"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_MULTICAST" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="mongoDao" />
+		<constructor-arg index="4" ref="util" />
+		<constructor-arg index="5" value="app" />
+	</bean>
+	
+	<bean id="PR1_PN_ICICI_MULTICAST" class="com.netcore.pnserver.processor.PR1_PN_ICICI_MULTICAST"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_ICICI_MULTICAST" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="mongoDao" />
+		<constructor-arg index="4" ref="util" />
+	</bean>
+	
+	<bean id="PR1_PN_MULTICAST_WEB" class="com.netcore.pnserver.processor.PR1_PN_MULTICAST_WEB"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_MULTICAST_WEB" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="mongoDao" />
+		<constructor-arg index="4" ref="util" />
+	</bean>
+	
+	<bean id="PR1_PN_MULTICAST_SAFARI" class="com.netcore.pnserver.processor.PR1_PN_MULTICAST_SAFARI"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_MULTICAST_SAFARI" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="mongoDao" />
+		<constructor-arg index="4" ref="util" />
+	</bean>
+	
+	
+	
+	<bean id="PR1_PN_BROADCAST" class="com.netcore.pnserver.processor.PR1_PN_BROADCAST"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_BROADCAST" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="util" />
+		<constructor-arg index="4" value="app" />
+	</bean>
+	
+	<bean id="PR1_PN_ICICI_BROADCAST" class="com.netcore.pnserver.processor.PR1_PN_ICICI_BROADCAST"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_ICICI_BROADCAST" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="util" />
+	</bean>
+	
+	<bean id="PR1_PN_BROADCAST_WEB" class="com.netcore.pnserver.processor.PR1_PN_BROADCAST_WEB"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_BROADCAST_WEB" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="util" />
+	</bean>
+
+	<bean id="PR1_PN_BROADCAST_SAFARI" class="com.netcore.pnserver.processor.PR1_PN_BROADCAST_SAFARI"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_BROADCAST_SAFARI" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="util" />
+	</bean>			
+
+	<bean id="PR1_PN_MULTICAST_SILENT" class="com.netcore.pnserver.processor.PR1_PN_MULTICAST_SILENT"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_MULTICAST_SILENT" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="mongoDao" />
+		<constructor-arg index="4" ref="util" />
+	</bean>
+	
+	<bean id="PR1_PN_MULTICAST_SILENT_WEB" class="com.netcore.pnserver.processor.PR1_PN_MULTICAST_SILENT_WEB"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_MULTICAST_SILENT_WEB" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="mongoDao" />
+		<constructor-arg index="4" ref="util" />
+	</bean>
+	
+		
+	<bean id="PR1_PN_TR" class="com.netcore.pnserver.processor.PR1_PN_TR"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_TR" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="util" />
+	</bean>		
+
+	<bean id="PR1_PN_TR_WEB" class="com.netcore.pnserver.processor.PR1_PN_TR_WEB"
+		scope="prototype">
+		<constructor-arg index="0" value="PR1_PN_TR_WEB" />
+		<constructor-arg index="1" ref="redisDao" />
+		<constructor-arg index="2" ref="mysqlDao" />
+		<constructor-arg index="3" ref="util" />
+	</bean>
+
+
+</beans>
